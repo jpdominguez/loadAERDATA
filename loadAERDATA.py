@@ -7,19 +7,37 @@ def checkAERDATA(p_timestamps, p_number_of_addresses =  -1, p_events = []):
     # Check all timestamps are greater than zero
     a = all(item >= 0  for item in p_timestamps)
 
+    if not a:
+        print "The AER-DATA file that you loaded has at least one timestamp that is below 0."
+
     # Check every timestamp is greater than its previous one
-    b = any(i > 0 and p_timestamps[i] < p_timestamps[i-1] for i in range(len(p_timestamps)))
+    b = not any(i > 0 and p_timestamps[i] < p_timestamps[i-1] for i in range(len(p_timestamps)))
+    
+    if not b:
+        print "The AER-DATA file that you loaded has at least one timestamp whose value is lesser than its previous one."
 
-    # Check all addresses are between zero and the total number of addresses
-    c = all(item >= 0 and item < p_number_of_addresses for item in p_events)
+    if p_number_of_addresses != -1:
 
-    return a and not b and c 
+        # Check all addresses are between zero and the total number of addresses
+        c = all(item >= 0 and item < p_number_of_addresses for item in p_events)
+
+        if not c:
+            print "The AER-DATA file that you loaded has at least one event whose address is either below 0 or above the number of addresses that you specified."
+
+        return a and b and c
+
+    else:
+        return a and not b
             
 
-def adaptAERDATA(p_timestamps, p_tick):
-    return [(x - p_timestamps[0])*p_tick for x in p_timestamps]
+# Function to subtract the smallest timestamp to all of the events (to start from 0) and adapt them based on the tick frequency of the tool used to log the file.
+def adaptAERDATA(p_timestamps, p_timestampReset, p_tick):
+    if p_timestampReset:
+        return [(x - p_timestamps[0])*p_tick for x in p_timestamps]
+    else:
+        return [x*p_tick for x in p_timestamps]
 
-
+# Function to 
 def loadAERDATA(p_path, p_address_size = 2):
     events = []
     timestamps = []
@@ -60,8 +78,10 @@ print len(ts)
 print add[0]
 print ts[0]
 
-ts = adaptAERDATA(ts, 0.2)
+ts = adaptAERDATA(ts, True, 0.2)
 
+print ts[0]
 print ts[-1]
 
-print checkAERDATA(ts, 64, add)
+if checkAERDATA(ts, 64, add):
+    print "The loaded AER-DATA file has been checked and it's OK"
