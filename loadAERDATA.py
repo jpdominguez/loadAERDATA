@@ -68,9 +68,12 @@ def loadAERDATA(p_path, p_address_size = 2):
 
 
 
-path = 'C:\\Users\\jpdominguez\\Desktop\\test_aedat\\sample_AERDATA.aedat'
+path = 'D:\\Repositorios\\GitHub\\loadAERDATA\\c120e80e_nohash_8.wav.aedat'
 
+import time
+start_time = time.time()
 [add, ts] = loadAERDATA(path)
+print "The file took ", time.time() - start_time
 
 print len(add)
 print len(ts)
